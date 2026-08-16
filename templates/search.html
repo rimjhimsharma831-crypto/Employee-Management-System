@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search Employee - EMS</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h2>EMS</h2>
+
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('add_employee') }}">Add Employee</a>
+    <a href="{{ url_for('view_employee') }}">View Employee</a>
+    <a href="{{ url_for('search') }}" class="active">Search</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</div>
+
+<div class="main-content">
+
+    <div class="page-header">
+        <div>
+            <h1>Search Employee</h1>
+            <p>Search by name, email or department</p>
+        </div>
+    </div>
+
+    <div class="search-box">
+
+        <form method="GET" action="{{ url_for('search') }}">
+
+            <input type="text"
+                   name="keyword"
+                   value="{{ keyword }}"
+                   placeholder="Search employee...">
+
+            <button type="submit">Search</button>
+
+        </form>
+
+    </div>
+
+    <div class="table-card">
+
+        {% if employees %}
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Department</th>
+                    <th>Position</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for employee in employees %}
+
+                <tr>
+                    <td>{{ employee["id"] }}</td>
+                    <td>{{ employee["full_name"] }}</td>
+                    <td>{{ employee["email"] }}</td>
+                    <td>{{ employee["phone"] }}</td>
+                    <td>{{ employee["department"] }}</td>
+                    <td>{{ employee["position"] }}</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% elif keyword %}
+
+        <div class="empty">
+            <h3>No Employee Found</h3>
+            <p>No employee matches "{{ keyword }}".</p>
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

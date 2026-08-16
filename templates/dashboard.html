@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard - EMS</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h2>EMS</h2>
+
+    <a href="{{ url_for('dashboard') }}" class="active">Dashboard</a>
+    <a href="{{ url_for('add_employee') }}">Add Employee</a>
+    <a href="{{ url_for('view_employee') }}">View Employee</a>
+    <a href="{{ url_for('search') }}">Search</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</div>
+
+<div class="main-content">
+
+    <div class="page-header">
+        <div>
+            <h1>Dashboard</h1>
+            <p>Welcome back, Admin 👋</p>
+        </div>
+    </div>
+
+
+    <div class="cards">
+
+        <a href="{{ url_for('view_employee') }}" class="card green">
+            <h3>Total Employees</h3>
+            <h2>{{ total_employees }}</h2>
+            <p>Employees in system →</p>
+        </a>
+
+
+        <a href="{{ url_for('departments_page') }}" class="card blue">
+            <h3>Departments</h3>
+            <h2>{{ departments }}</h2>
+            <p>Total departments →</p>
+        </a>
+
+
+        <a href="{{ url_for('new_employees') }}" class="card purple">
+            <h3>New Employees</h3>
+            <h2>{{ new_employees }}</h2>
+            <p>Joined this month →</p>
+        </a>
+
+
+        <a href="{{ url_for('attendance') }}" class="card orange">
+            <h3>Attendance</h3>
+            <h2>95%</h2>
+            <p>View details →</p>
+        </a>
+
+    </div>
+
+
+    <div class="welcome-box">
+
+        <h2>Employee Management</h2>
+
+        <p>
+            Manage employee records, search employees and keep your
+            information organized.
+        </p>
+
+        <div class="dashboard-buttons">
+
+            <a href="{{ url_for('add_employee') }}" class="btn">
+                + Add Employee
+            </a>
+
+            <a href="{{ url_for('view_employee') }}" class="btn">
+                View Employees
+            </a>
+
+            <a href="{{ url_for('search') }}" class="btn">
+                Search Employee
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
