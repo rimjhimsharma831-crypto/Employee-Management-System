@@ -1,36 +1,51 @@
 from flask import Flask, render_template, request, redirect
-import sqlite3
+import mysql.connector
 from datetime import datetime
 
 app = Flask(__name__)
 
+
+
 def get_db():
-    conn = sqlite3.connect("employees.db")
-    conn.row_factory = sqlite3.Row
+    conn = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="ApnaNayaPassword@123",
+        database="employee_db"
+    )
     return conn
+
+
 
 def create_table():
     conn = get_db()
-    conn.execute("""
+    cursor = conn.cursor()
+
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS employees (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            full_name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            phone TEXT,
-            department TEXT,
-            position TEXT,
-            salary TEXT,
-            joining_date TEXT
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            full_name VARCHAR(100) NOT NULL,
+            email VARCHAR(100) NOT NULL,
+            phone VARCHAR(20),
+            department VARCHAR(100),
+            position VARCHAR(100),
+            salary VARCHAR(50),
+            joining_date VARCHAR(50)
         )
     """)
+
     conn.commit()
+    cursor.close()
     conn.close()
 
+
 create_table()
+
 
 @app.route("/")
 def home():
     return render_template("index.html")
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -42,25 +57,33 @@ def login():
 
     return "Invalid Username or Password"
 
+
 @app.route("/dashboard")
 def dashboard():
     conn = get_db()
+    cursor = conn.cursor()
 
-    total_employees = conn.execute(
+    cursor.execute(
         "SELECT COUNT(*) FROM employees"
-    ).fetchone()[0]
+    )
+    total_employees = cursor.fetchone()[0]
 
-    departments = conn.execute(
-        "SELECT COUNT(DISTINCT department) FROM employees WHERE department != ''"
-    ).fetchone()[0]
+    cursor.execute(
+        "SELECT COUNT(DISTINCT department) FROM employees "
+        "WHERE department != ''"
+    )
+    departments = cursor.fetchone()[0]
 
     current_month = datetime.now().strftime("%Y-%m")
 
-    new_employees = conn.execute(
-        "SELECT COUNT(*) FROM employees WHERE joining_date LIKE ?",
+    cursor.execute(
+        "SELECT COUNT(*) FROM employees "
+        "WHERE joining_date LIKE %s",
         (current_month + "%",)
-    ).fetchone()[0]
+    )
+    new_employees = cursor.fetchone()[0]
 
+    cursor.close()
     conn.close()
 
     return render_template(
@@ -70,16 +93,18 @@ def dashboard():
         new_employees=new_employees
     )
 
+
 @app.route("/add-employee", methods=["GET", "POST"])
 def add_employee():
     if request.method == "POST":
 
         conn = get_db()
+        cursor = conn.cursor()
 
-        conn.execute("""
+        cursor.execute("""
             INSERT INTO employees
             (full_name, email, phone, department, position, salary, joining_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """, (
             request.form["full_name"],
             request.form["email"],
@@ -91,38 +116,50 @@ def add_employee():
         ))
 
         conn.commit()
+        cursor.close()
         conn.close()
 
         return redirect("/view-employee")
 
     return render_template("add_employee.html")
 
+
 @app.route("/view-employee")
 def view_employee():
     conn = get_db()
+    cursor = conn.cursor(dictionary=True)
 
-    employees = conn.execute(
+    cursor.execute(
         "SELECT * FROM employees ORDER BY id DESC"
-    ).fetchall()
+    )
 
+    employees = cursor.fetchall()
+
+    cursor.close()
     conn.close()
 
     return render_template(
         "view_employee.html",
         employees=employees
     )
+
+
 @app.route("/departments")
 def departments_page():
     conn = get_db()
+    cursor = conn.cursor(dictionary=True)
 
-    departments = conn.execute("""
-        SELECT department, COUNT(*) as total
+    cursor.execute("""
+        SELECT department, COUNT(*) AS total
         FROM employees
         WHERE department != ''
         GROUP BY department
         ORDER BY department
-    """).fetchall()
+    """)
 
+    departments = cursor.fetchall()
+
+    cursor.close()
     conn.close()
 
     return render_template(
@@ -130,18 +167,23 @@ def departments_page():
         departments=departments
     )
 
+
 @app.route("/new-employees")
 def new_employees():
     current_month = datetime.now().strftime("%Y-%m")
 
     conn = get_db()
+    cursor = conn.cursor(dictionary=True)
 
-    employees = conn.execute("""
+    cursor.execute("""
         SELECT * FROM employees
-        WHERE joining_date LIKE ?
+        WHERE joining_date LIKE %s
         ORDER BY id DESC
-    """, (current_month + "%",)).fetchall()
+    """, (current_month + "%",))
 
+    employees = cursor.fetchall()
+
+    cursor.close()
     conn.close()
 
     return render_template(
@@ -149,31 +191,38 @@ def new_employees():
         employees=employees
     )
 
+
 @app.route("/attendance")
 def attendance():
-    return "<h1>Attendance</h1><p>Attendance page is working.</p><br><a href='/dashboard'>← Back to Dashboard</a>"
-   
-     
-          
+    return """
+        <h1>Attendance</h1>
+        <p>Attendance page is working.</p>
+        <br>
+        <a href="/dashboard">← Back to Dashboard</a>
+    """
 
-           
+
 @app.route("/search")
 def search():
     keyword = request.args.get("keyword", "")
 
     conn = get_db()
+    cursor = conn.cursor(dictionary=True)
 
-    employees = conn.execute("""
+    cursor.execute("""
         SELECT * FROM employees
-        WHERE full_name LIKE ?
-        OR email LIKE ?
-        OR department LIKE ?
+        WHERE full_name LIKE %s
+        OR email LIKE %s
+        OR department LIKE %s
     """, (
         "%" + keyword + "%",
         "%" + keyword + "%",
         "%" + keyword + "%"
-    )).fetchall()
+    ))
 
+    employees = cursor.fetchall()
+
+    cursor.close()
     conn.close()
 
     return render_template(
@@ -182,9 +231,11 @@ def search():
         keyword=keyword
     )
 
+
 @app.route("/logout")
 def logout():
     return redirect("/")
+
 
 if __name__ == "__main__":
     app.run(debug=True)

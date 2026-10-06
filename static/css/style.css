@@ -10,8 +10,6 @@ body {
     color: #222;
 }
 
-
-
 .login-body {
     min-height: 100vh;
     display: flex;
@@ -124,7 +122,7 @@ body {
 }
 
 
-/* SIDEBAR */
+
 
 .sidebar {
     position: fixed;
@@ -158,8 +156,6 @@ body {
 }
 
 
-/* MAIN */
-
 .main-content {
     margin-left: 220px;
     padding: 35px;
@@ -178,8 +174,6 @@ body {
     color: #777;
 }
 
-
-/* DASHBOARD */
 
 .cards {
     display: grid;
@@ -234,8 +228,6 @@ body {
     color: #ea580c;
 }
 
-
-/* WELCOME */
 
 .welcome-box {
     background: white;
@@ -320,8 +312,6 @@ button {
     margin-left: 8px;
 }
 
-
-/* TABLE */
 
 .table-card {
     background: white;
