@@ -1,6 +1,12 @@
 from flask import Flask, render_template, request, redirect
+import os
 import mysql.connector
+from dotenv import load_dotenv
 from datetime import datetime
+
+load_dotenv()
+
+print("DB_HOST =", os.getenv("DB_HOST"))
 
 app = Flask(__name__)
 
@@ -8,10 +14,12 @@ app = Flask(__name__)
 
 def get_db():
     conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="ApnaNayaPassword@123",
-        database="employee_db"
+        host=os.environ.get("DB_HOST"),
+        port=int(os.environ.get("DB_PORT", 4000)),
+        user=os.environ.get("DB_USER"),
+        password=os.environ.get("DB_PASSWORD"),
+        database=os.environ.get("DB_NAME"),
+        ssl_ca="certs/cert.pem"
     )
     return conn
 
