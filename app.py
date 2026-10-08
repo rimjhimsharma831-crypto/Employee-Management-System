@@ -8,18 +8,26 @@ load_dotenv()
 
 print("DB_HOST =", os.getenv("DB_HOST"))
 
+if os.getenv("DB_SSL_CA"):
+    CERT_PATH = "/tmp/tidb-ca.pem"
+
+    with open(CERT_PATH, "w") as f:
+        f.write(os.getenv("DB_SSL_CA"))
+else:
+    CERT_PATH = "certs/cert.pem"
+
 app = Flask(__name__)
 
 
 
 def get_db():
     conn = mysql.connector.connect(
-        host=os.environ.get("DB_HOST"),
-        port=int(os.environ.get("DB_PORT", 4000)),
-        user=os.environ.get("DB_USER"),
-        password=os.environ.get("DB_PASSWORD"),
-        database=os.environ.get("DB_NAME"),
-        ssl_ca="certs/cert.pem"
+        host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT", 4000)),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME"),
+        ssl_ca=CERT_PATH
     )
     return conn
 
